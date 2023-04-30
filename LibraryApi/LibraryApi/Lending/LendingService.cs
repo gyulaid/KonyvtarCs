@@ -67,6 +67,7 @@ public class LendingService
         {
             this.libraryContext.Lendings.Remove(lending.Result);
             this.libraryContext.SaveChanges();
+            this.logger.Log(LogLevel.Information, "Lending was deleted with id: " + id);
         }
         else
         {
@@ -76,6 +77,6 @@ public class LendingService
 
     private bool IsReturnDateValid(DateTime lendDate, DateTime? returnDate)
     {
-        return returnDate is null || returnDate > lendDate;
+        return returnDate is null || returnDate.Value.CompareTo(lendDate) != -1;
     }
 }

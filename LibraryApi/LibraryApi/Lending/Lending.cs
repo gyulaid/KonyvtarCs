@@ -10,10 +10,10 @@ public class Lending
     public int Id { get; set; }
 
     public int MemberId { get; set; }
-    
+
     public int inventoryId { get; set; }
-    
+
     public DateTime dateOfLend { get; set; }
-    
-    public DateTime dateOfReturn { get; set; }
+
+    public DateTime? dateOfReturn { get; set; }
 }

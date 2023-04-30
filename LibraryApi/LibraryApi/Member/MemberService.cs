@@ -56,6 +56,7 @@ public class MemberService
         {
             this.libraryContext.Members.Remove(member.Result);
             this.libraryContext.SaveChanges();
+            this.logger.Log(LogLevel.Information, "Member was deleted with id: " + id);
         }
         else
         {
