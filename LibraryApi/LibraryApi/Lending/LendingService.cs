@@ -1,11 +1,13 @@
 using LibraryApi.Database;
 using LibraryApi.Exception;
+using LibraryApi.Lending.Dto;
 
 namespace LibraryApi.Lending;
 
 public class LendingService
 {
-    private const string LENDING_NOT_FOUND = "Lending was not found with id: ";
+    private const string LendingNotFound = "Lending was not found with id: ";
+    private const string InvalidReturnDate = "Return date can not be sooner than the lend date";
 
     private readonly LibraryContext libraryContext;
     private readonly ILogger<LendingService> logger;
@@ -15,7 +17,7 @@ public class LendingService
         this.libraryContext = libraryContext;
         this.logger = logger;
     }
-    
+
     public List<Lending> GetAllLendings()
     {
         return this.libraryContext.Lendings.ToList();
@@ -29,12 +31,12 @@ public class LendingService
             return lending;
         }
 
-        throw new EntityNotFoundException(LENDING_NOT_FOUND + id);
+        throw new EntityNotFoundException(LendingNotFound + id);
     }
 
     public Lending CreateLending(Lending lending)
     {
-        if (IsReturnDateValid(lending.dateOfLend, lending.dateOfReturn))
+        if (IsReturnDateValid(lending.DateOfLend, lending.DateOfReturn))
         {
             var savedLending = this.libraryContext.Lendings.Add(lending);
             this.libraryContext.SaveChanges();
@@ -42,21 +44,26 @@ public class LendingService
             return savedLending.Entity;
         }
 
-        throw new InvalidDataException("Return date can not be sooner than the lend date");
+        throw new ArgumentException(InvalidReturnDate);
     }
 
-    public Lending ReturnLending(int id, DateTime newDateOfReturn)
+    public Lending ReturnLending(int id, UpdateLendingDto updateDto)
     {
         var lending = this.libraryContext.Lendings.Find(id);
         if (lending is null)
         {
-            throw new EntityNotFoundException(LENDING_NOT_FOUND + id);
+            throw new EntityNotFoundException(LendingNotFound + id);
         }
 
-        lending.dateOfReturn = newDateOfReturn;
+        if (!IsReturnDateValid(lending.DateOfLend, updateDto.dateOfReturn))
+        {
+            throw new ArgumentException(InvalidReturnDate);
+        }
+
+        lending.DateOfReturn = updateDto.dateOfReturn;
         this.libraryContext.Lendings.Update(lending);
         this.libraryContext.SaveChanges();
-        this.logger.Log(LogLevel.Information, "Book with id: " + lending.inventoryId + "was returned");
+        this.logger.Log(LogLevel.Information, "Book was returned with id: " + lending.BookId);
         return lending;
     }
 
@@ -71,11 +78,11 @@ public class LendingService
         }
         else
         {
-            throw new EntityNotFoundException(LENDING_NOT_FOUND + id);
+            throw new EntityNotFoundException(LendingNotFound + id);
         }
     }
 
-    private bool IsReturnDateValid(DateTime lendDate, DateTime? returnDate)
+    private static bool IsReturnDateValid(DateTime lendDate, DateTime? returnDate)
     {
         return returnDate is null || returnDate.Value.CompareTo(lendDate) != -1;
     }

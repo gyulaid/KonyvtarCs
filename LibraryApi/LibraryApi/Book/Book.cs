@@ -9,11 +9,11 @@ public class Book
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
-    public string title { get; set; }
+    public string Title { get; set; }
 
-    public string author { get; set; }
+    public string Author { get; set; }
 
-    public string publisher { get; set; }
+    public string Publisher { get; set; }
 
-    public int publishYear { get; set; }
+    public int PublishYear { get; set; }
 }

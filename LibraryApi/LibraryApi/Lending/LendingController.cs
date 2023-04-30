@@ -1,3 +1,4 @@
+using LibraryApi.Lending.Dto;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryApi.Lending;
@@ -32,9 +33,9 @@ public class LendingController : ControllerBase
     }
 
     [HttpPatch("{id}")]
-    public Lending ReturnLending(int id, [FromBody] DateTime dateOfReturn)
+    public Lending ReturnLending(int id, [FromBody] UpdateLendingDto updateDto)
     {
-        return this.lendingService.ReturnLending(id, dateOfReturn);
+        return this.lendingService.ReturnLending(id, updateDto);
     }
 
     [HttpDelete("{id}")]

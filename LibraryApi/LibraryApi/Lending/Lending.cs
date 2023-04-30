@@ -11,10 +11,10 @@ public class Lending
 
     public int MemberId { get; set; }
 
-    public int inventoryId { get; set; }
+    public int BookId { get; set; }
 
-    public DateTime dateOfLend { get; set; }
+    public DateTime DateOfLend { get; set; }
 
-    public DateTime? dateOfReturn { get; set; }
+    public DateTime? DateOfReturn { get; set; }
 
 }

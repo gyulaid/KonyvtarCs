@@ -5,7 +5,7 @@ namespace LibraryApi.Book;
 
 public class BookService
 {
-    private const string BOOK_NOT_FOUND = "Book was not found with id: ";
+    private const string BookNotFound = "Book was not found with id: ";
 
     private readonly LibraryContext libraryContext;
     private readonly ILogger<BookService> logger;
@@ -29,7 +29,7 @@ public class BookService
             return book;
         }
 
-        throw new EntityNotFoundException(BOOK_NOT_FOUND + id);
+        throw new EntityNotFoundException(BookNotFound + id);
     }
 
     public Book CreateBook(Book book)
@@ -51,7 +51,7 @@ public class BookService
         }
         else
         {
-            throw new EntityNotFoundException(BOOK_NOT_FOUND + id);
+            throw new EntityNotFoundException(BookNotFound + id);
         }
     }
 }

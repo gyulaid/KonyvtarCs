@@ -6,8 +6,8 @@ namespace LibraryApi.Member;
 
 public class MemberService
 {
-    private const string MEMBER_NOT_FOUND = "Member was not found with id: ";
-    private const string NAME_PATTERN = "^[a-zA-Z]+$";
+    private const string MemberNotFound = "Member was not found with id: ";
+    private const string NamePattern = "^[a-zA-Z]+$";
 
     private readonly LibraryContext libraryContext;
     private readonly ILogger<MemberService> logger;
@@ -31,7 +31,7 @@ public class MemberService
             return member;
         }
 
-        throw new EntityNotFoundException(MEMBER_NOT_FOUND + id);
+        throw new EntityNotFoundException(MemberNotFound + id);
     }
 
     public Member CreateMember(Member member)
@@ -60,12 +60,12 @@ public class MemberService
         }
         else
         {
-            throw new KeyNotFoundException(MEMBER_NOT_FOUND + id);
+            throw new KeyNotFoundException(MemberNotFound + id);
         }
     }
 
     private static bool IsNameValid(string name)
     {
-        return Regex.IsMatch(name, NAME_PATTERN);
+        return Regex.IsMatch(name, NamePattern);
     }
 }
