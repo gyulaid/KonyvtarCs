@@ -15,25 +15,25 @@ public class LendingController : ControllerBase
     }
 
     [HttpGet]
-    public List<Lending> GetAllLendings()
+    public List<LendingResponseDto> GetAllLendings()
     {
         return this.lendingService.GetAllLendings();
     }
 
     [HttpGet("{id}")]
-    public Lending GetLending(int id)
+    public LendingResponseDto GetLending(int id)
     {
         return this.lendingService.GetLendingById(id);
     }
 
     [HttpPost]
-    public Lending CreateLending([FromBody] Lending lending)
+    public LendingResponseDto CreateLending([FromBody] CreateLendingDto createDto)
     {
-        return this.lendingService.CreateLending(lending);
+        return this.lendingService.CreateLending(createDto);
     }
 
     [HttpPatch("{id}")]
-    public Lending ReturnLending(int id, [FromBody] UpdateLendingDto updateDto)
+    public LendingResponseDto ReturnLending(int id, [FromBody] UpdateLendingDto updateDto)
     {
         return this.lendingService.ReturnLending(id, updateDto);
     }

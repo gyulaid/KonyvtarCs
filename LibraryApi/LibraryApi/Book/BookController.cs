@@ -14,21 +14,21 @@ public class BookController : ControllerBase
     }
 
     [HttpGet]
-    public List<Book> GetAllBooks()
+    public List<BookResponseDto> GetAllBooks()
     {
         return this.bookService.GetAllBooks();
     }
 
     [HttpGet("{id}")]
-    public Book GetBook(int id)
+    public BookResponseDto GetBook(int id)
     {
         return this.bookService.GetBookById(id);
     }
 
     [HttpPost]
-    public Book CreateBook([FromBody] Book book)
+    public BookResponseDto CreateBook([FromBody] CreateBookDto createDto)
     {
-        return this.bookService.CreateBook(book);
+        return this.bookService.CreateBook(createDto);
     }
 
     [HttpDelete("{id}")]

@@ -1,6 +1,8 @@
 using System.Text.RegularExpressions;
+using AutoMapper;
 using LibraryApi.Database;
 using LibraryApi.Exception;
+using LibraryApi.Member.Dto;
 
 namespace LibraryApi.Member;
 
@@ -11,37 +13,39 @@ public class MemberService
 
     private readonly LibraryContext libraryContext;
     private readonly ILogger<MemberService> logger;
+    private readonly IMapper mapper;
 
-    public MemberService(LibraryContext libraryContext, ILogger<MemberService> logger)
+    public MemberService(LibraryContext libraryContext, ILogger<MemberService> logger, IMapper mapper)
     {
         this.libraryContext = libraryContext;
         this.logger = logger;
+        this.mapper = mapper;
     }
 
-    public List<Member> GetAllMember()
+    public List<MemberResponseDto> GetAllMember()
     {
-        return this.libraryContext.Members.ToList();
+        return mapper.Map<List<MemberResponseDto>>(this.libraryContext.Members.ToList());
     }
 
-    public Member GetMemberById(int id)
+    public MemberResponseDto GetMemberById(int id)
     {
         var member = this.libraryContext.Members.Find(id);
         if (member != null)
         {
-            return member;
+            return mapper.Map<MemberResponseDto>(member);
         }
 
         throw new EntityNotFoundException(MemberNotFound + id);
     }
 
-    public Member CreateMember(Member member)
+    public MemberResponseDto CreateMember(CreateMemberDto createDto)
     {
-        if (IsNameValid(member.Name))
+        if (IsNameValid(createDto.Name))
         {
-            var savedMember = this.libraryContext.Members.Add(member);
+            var savedMember = this.libraryContext.Members.Add(mapper.Map<Member>(createDto));
             this.libraryContext.SaveChanges();
             this.logger.Log(LogLevel.Information, "A new member was saved");
-            return savedMember.Entity;
+            return mapper.Map<MemberResponseDto>(savedMember.Entity);
         }
         else
         {
@@ -60,7 +64,7 @@ public class MemberService
         }
         else
         {
-            throw new KeyNotFoundException(MemberNotFound + id);
+            throw new EntityNotFoundException(MemberNotFound + id);
         }
     }
 

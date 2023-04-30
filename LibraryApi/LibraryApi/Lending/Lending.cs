@@ -16,5 +16,4 @@ public class Lending
     public DateTime DateOfLend { get; set; }
 
     public DateTime? DateOfReturn { get; set; }
-
 }

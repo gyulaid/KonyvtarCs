@@ -1,3 +1,4 @@
+using AutoMapper;
 using LibraryApi.Database;
 using LibraryApi.Exception;
 using LibraryApi.Lending.Dto;
@@ -11,43 +12,45 @@ public class LendingService
 
     private readonly LibraryContext libraryContext;
     private readonly ILogger<LendingService> logger;
+    private readonly IMapper mapper;
 
-    public LendingService(LibraryContext libraryContext, ILogger<LendingService> logger)
+    public LendingService(LibraryContext libraryContext, ILogger<LendingService> logger, IMapper mapper)
     {
         this.libraryContext = libraryContext;
         this.logger = logger;
+        this.mapper = mapper;
     }
 
-    public List<Lending> GetAllLendings()
+    public List<LendingResponseDto> GetAllLendings()
     {
-        return this.libraryContext.Lendings.ToList();
+        return mapper.Map<List<LendingResponseDto>>(this.libraryContext.Lendings.ToList());
     }
 
-    public Lending GetLendingById(int id)
+    public LendingResponseDto GetLendingById(int id)
     {
         var lending = this.libraryContext.Lendings.Find(id);
         if (lending != null)
         {
-            return lending;
+            return mapper.Map<LendingResponseDto>(lending);
         }
 
         throw new EntityNotFoundException(LendingNotFound + id);
     }
 
-    public Lending CreateLending(Lending lending)
+    public LendingResponseDto CreateLending(CreateLendingDto createDto)
     {
-        if (IsReturnDateValid(lending.DateOfLend, lending.DateOfReturn))
+        if (IsReturnDateValid(createDto.DateOfLend, createDto.DateOfReturn))
         {
-            var savedLending = this.libraryContext.Lendings.Add(lending);
+            var savedLending = this.libraryContext.Lendings.Add(mapper.Map<Lending>(createDto));
             this.libraryContext.SaveChanges();
             this.logger.Log(LogLevel.Information, "A new lending was saved");
-            return savedLending.Entity;
+            return mapper.Map<LendingResponseDto>(savedLending.Entity);
         }
 
         throw new ArgumentException(InvalidReturnDate);
     }
 
-    public Lending ReturnLending(int id, UpdateLendingDto updateDto)
+    public LendingResponseDto ReturnLending(int id, UpdateLendingDto updateDto)
     {
         var lending = this.libraryContext.Lendings.Find(id);
         if (lending is null)
@@ -64,7 +67,7 @@ public class LendingService
         this.libraryContext.Lendings.Update(lending);
         this.libraryContext.SaveChanges();
         this.logger.Log(LogLevel.Information, "Book was returned with id: " + lending.BookId);
-        return lending;
+        return mapper.Map<LendingResponseDto>(lending);
     }
 
     public void DeleteLending(int id)

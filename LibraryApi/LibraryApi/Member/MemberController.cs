@@ -1,3 +1,4 @@
+using LibraryApi.Member.Dto;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryApi.Member;
@@ -14,21 +15,21 @@ public class MemberController : ControllerBase
     }
 
     [HttpGet]
-    public List<Member> GetAllMembers()
+    public List<MemberResponseDto> GetAllMembers()
     {
         return this.memberService.GetAllMember();
     }
 
     [HttpGet("{id}")]
-    public Member GetMember(int id)
+    public MemberResponseDto GetMember(int id)
     {
         return this.memberService.GetMemberById(id);
     }
 
     [HttpPost]
-    public Member CreateMember([FromBody] Member member)
+    public MemberResponseDto CreateMember([FromBody] CreateMemberDto createDto)
     {
-        return this.memberService.CreateMember(member);
+        return this.memberService.CreateMember(createDto);
     }
 
     [HttpDelete("{id}")]

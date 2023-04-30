@@ -1,3 +1,4 @@
+using AutoMapper;
 using LibraryApi.Database;
 using LibraryApi.Exception;
 
@@ -9,35 +10,37 @@ public class BookService
 
     private readonly LibraryContext libraryContext;
     private readonly ILogger<BookService> logger;
+    private readonly IMapper mapper;
 
-    public BookService(LibraryContext libraryContext, ILogger<BookService> logger)
+    public BookService(LibraryContext libraryContext, ILogger<BookService> logger, IMapper mapper)
     {
         this.libraryContext = libraryContext;
         this.logger = logger;
+        this.mapper = mapper;
     }
 
-    public List<Book> GetAllBooks()
+    public List<BookResponseDto> GetAllBooks()
     {
-        return this.libraryContext.Books.ToList();
+        return mapper.Map<List<BookResponseDto>>(this.libraryContext.Books.ToList());
     }
 
-    public Book GetBookById(int id)
+    public BookResponseDto GetBookById(int id)
     {
         var book = this.libraryContext.Books.Find(id);
         if (book != null)
         {
-            return book;
+            return mapper.Map<BookResponseDto>(book);
         }
 
         throw new EntityNotFoundException(BookNotFound + id);
     }
 
-    public Book CreateBook(Book book)
+    public BookResponseDto CreateBook(CreateBookDto createDto)
     {
-        var savedBook = this.libraryContext.Books.Add(book);
+        var savedBook = this.libraryContext.Books.Add(mapper.Map<Book>(createDto));
         this.libraryContext.SaveChanges();
         this.logger.Log(LogLevel.Information, "A new book was saved");
-        return savedBook.Entity;
+        return mapper.Map<BookResponseDto>(savedBook.Entity);
     }
 
     public void DeleteBook(int id)
