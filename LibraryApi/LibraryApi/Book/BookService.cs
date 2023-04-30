@@ -15,7 +15,7 @@ public class BookService
         this.libraryContext = libraryContext;
         this.logger = logger;
     }
-    
+
     public List<Book> GetAllBooks()
     {
         return this.libraryContext.Books.ToList();
@@ -47,6 +47,7 @@ public class BookService
         {
             this.libraryContext.Books.Remove(book.Result);
             this.libraryContext.SaveChanges();
+            this.logger.Log(LogLevel.Information, "Book was deleted with id: " + id);
         }
         else
         {
