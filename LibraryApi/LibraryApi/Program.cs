@@ -1,14 +1,16 @@
 using LibraryApi.Database;
+using LibraryApi.Member;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddScoped<MemberService>();
 builder.Services.AddDbContext<LibraryContext>(
     options =>
     {
-        options.UseSqlServer(builder.Configuration.GetConnectionString("LocalDb"));
+        options.UseSqlite(builder.Configuration.GetConnectionString("SQLite"));
     }
 );
 builder.Services.AddSwaggerGen();
