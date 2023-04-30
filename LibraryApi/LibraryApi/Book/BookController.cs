@@ -19,6 +19,12 @@ public class BookController : ControllerBase
         return this.bookService.GetAllBooks();
     }
 
+    [HttpGet("/lend")]
+    public List<BookResponseDto> GetAllBooksLend()
+    {
+        return this.bookService.GetAllBooksLend();
+    }
+
     [HttpGet("{id}")]
     public BookResponseDto GetBook(int id)
     {

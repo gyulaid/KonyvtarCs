@@ -9,11 +9,13 @@ public class Lending
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
 
-    public int MemberId { get; set; }
+    public virtual Member.Member Member { get; set; }
 
-    public int BookId { get; set; }
+    public virtual Book.Book Book { get; set; }
 
     public DateTime DateOfLend { get; set; }
+
+    public DateTime DeadlineOfReturn { get; set; }
 
     public DateTime? DateOfReturn { get; set; }
 }

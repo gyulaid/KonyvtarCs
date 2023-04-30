@@ -39,7 +39,7 @@ public class LendingService
 
     public LendingResponseDto CreateLending(CreateLendingDto createDto)
     {
-        if (IsReturnDateValid(createDto.DateOfLend, createDto.DateOfReturn))
+        if (IsDateValid(createDto.DateOfLend, createDto.DeadlineOfReturn))
         {
             var savedLending = this.libraryContext.Lendings.Add(mapper.Map<Lending>(createDto));
             this.libraryContext.SaveChanges();
@@ -58,7 +58,7 @@ public class LendingService
             throw new EntityNotFoundException(LendingNotFound + id);
         }
 
-        if (!IsReturnDateValid(lending.DateOfLend, updateDto.dateOfReturn))
+        if (!IsDateValid(lending.DateOfLend, updateDto.dateOfReturn))
         {
             throw new ArgumentException(InvalidReturnDate);
         }
@@ -66,7 +66,7 @@ public class LendingService
         lending.DateOfReturn = updateDto.dateOfReturn;
         this.libraryContext.Lendings.Update(lending);
         this.libraryContext.SaveChanges();
-        this.logger.Log(LogLevel.Information, "Book was returned with id: " + lending.BookId);
+        this.logger.Log(LogLevel.Information, "Book was returned with id: " + lending.Book.Id);
         return mapper.Map<LendingResponseDto>(lending);
     }
 
@@ -85,8 +85,8 @@ public class LendingService
         }
     }
 
-    private static bool IsReturnDateValid(DateTime lendDate, DateTime? returnDate)
+    private static bool IsDateValid(DateTime earlyDate, DateTime? lateDate)
     {
-        return returnDate is null || returnDate.Value.CompareTo(lendDate) != -1;
+        return lateDate.Value.CompareTo(earlyDate) != -1;
     }
 }

@@ -24,6 +24,21 @@ public class BookService
         return mapper.Map<List<BookResponseDto>>(this.libraryContext.Books.ToList());
     }
 
+    public List<BookResponseDto> GetAllBooksLend()
+    {
+        return mapper.Map<List<BookResponseDto>>(
+            this.libraryContext.Books
+                .Join(
+                    libraryContext.Lendings,
+                    book => book.Id,
+                    lending => lending.Book.Id,
+                    (book, lending) => new { Book = book, Lending = lending })
+                .Where(joinedResult => joinedResult.Lending.DateOfReturn == null)
+                .Select(result => result.Book)
+                .ToList()
+        );
+    }
+
     public BookResponseDto GetBookById(int id)
     {
         var book = this.libraryContext.Books.Find(id);
