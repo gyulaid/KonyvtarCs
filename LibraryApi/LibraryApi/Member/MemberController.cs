@@ -1,4 +1,3 @@
-using LibraryApi.Database;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryApi.Member;
@@ -14,9 +13,27 @@ public class MemberController : ControllerBase
         this.memberService = memberService;
     }
 
-    [HttpPost]
-    public void CreateMember([FromBody] Member member)
+    [HttpGet]
+    public List<Member> GetAllMembers()
     {
-        this.memberService.CreateMember(member);
+        return this.memberService.GetAllMember();
+    }
+
+    [HttpGet("{id}")]
+    public Member GetMember(int id)
+    {
+        return this.memberService.GetMemberById(id);
+    }
+
+    [HttpPost]
+    public Member CreateMember([FromBody] Member member)
+    {
+        return this.memberService.CreateMember(member);
+    }
+
+    [HttpDelete("{id}")]
+    public void DeleteMember(int id)
+    {
+        this.memberService.DeleteMember(id);
     }
 }

@@ -1,10 +1,14 @@
 using System.Text.RegularExpressions;
 using LibraryApi.Database;
+using LibraryApi.Exception;
 
 namespace LibraryApi.Member;
 
 public class MemberService
 {
+    private const string MEMBER_NOT_FOUND = "Member was not found with id: ";
+    private const string NAME_PATTERN = "^[a-zA-Z]+$";
+
     private readonly LibraryContext libraryContext;
     private readonly ILogger<MemberService> logger;
 
@@ -27,16 +31,17 @@ public class MemberService
             return member;
         }
 
-        throw new KeyNotFoundException("Member not found with id " + id);
+        throw new EntityNotFoundException(MEMBER_NOT_FOUND + id);
     }
 
-    public void CreateMember(Member member)
+    public Member CreateMember(Member member)
     {
         if (IsNameValid(member.Name))
         {
-            this.libraryContext.Members.Add(member);
+            var savedMember = this.libraryContext.Members.Add(member);
             this.libraryContext.SaveChanges();
             this.logger.Log(LogLevel.Information, "A new member was saved");
+            return savedMember.Entity;
         }
         else
         {
@@ -54,13 +59,12 @@ public class MemberService
         }
         else
         {
-            throw new KeyNotFoundException("Member not found with id: " + id);
+            throw new KeyNotFoundException(MEMBER_NOT_FOUND + id);
         }
     }
 
     private static bool IsNameValid(string name)
     {
-        const string pattern = "^[a-zA-Z]+$";
-        return Regex.IsMatch(name, pattern);
+        return Regex.IsMatch(name, NAME_PATTERN);
     }
 }
