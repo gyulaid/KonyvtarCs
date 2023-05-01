@@ -26,15 +26,6 @@ public class BookService
         return mapper.Map<List<BookResponseDto>>(this.libraryContext.Books.ToList());
     }
 
-    public List<BookResponseDto> GetAllBooksLent()
-    {
-        return mapper.Map<List<BookResponseDto>>(
-            this.libraryContext.Books
-                .Where(book => !book.IsAvailable)
-                .ToList()
-        );
-    }
-
     public List<BookResponseDto> GetAllAvailableBooks()
     {
         return mapper.Map<List<BookResponseDto>>(
@@ -58,32 +49,42 @@ public class BookService
 
         if (lending is null)
         {
-            details.IsAvailable = true;
+            details.Book = book;
             details.Member = null;
             details.DeadlineOfReturn = null;
 
             return details;
         }
 
-        details.IsAvailable = false;
+        details.Book = lending.Book;
         details.Member = this.mapper.Map<MemberResponseDto>(lending.Member);
         details.DeadlineOfReturn = lending.DeadlineOfReturn;
 
         return details;
     }
 
+    public List<BookLendingDetailsDto> GetLendingDetailsOfBooksByMemberId(int memberId)
+    {
+        List<Lending.Lending> lendings = this.libraryContext.Lendings.Include(x => x.Book)
+            .Where(lending => lending.Member.Id == memberId)
+            .ToList();
+        List<BookLendingDetailsDto> lendingDetailsDtos = new List<BookLendingDetailsDto>();
+
+        foreach (var lending in lendings)
+        {
+            lendingDetailsDtos.Add(this.GetBookLendingDetails(lending.Book.Id));
+        }
+
+        return lendingDetailsDtos;
+    }
+
     private Lending.Lending FindActiveLendingByBookId(int id)
     {
         return this.libraryContext.Lendings
-            .Include(include => include.Member)
-            .Join(
-                libraryContext.Lendings,
-                lending => lending.Book.Id,
-                book => book.Id,
-                (lending, book) => new { Lending = lending, Book = book })
-            .Where(joinedResult => !joinedResult.Book.Book.IsAvailable && joinedResult.Book.Id == id)
-            .Select(result => result.Lending)
-            .First();
+            .Include(x => x.Book)
+            .Include(y => y.Member)
+            .First(lending => lending.Book.Id == id && !lending.Book.IsAvailable);
+
     }
 
     public BookResponseDto GetBookById(int id)

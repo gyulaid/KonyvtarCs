@@ -19,10 +19,10 @@ public class BookController : ControllerBase
         return this.bookService.GetAllBooks();
     }
 
-    [HttpGet("/lent")]
-    public List<BookResponseDto> GetAllBooksLent()
+    [HttpGet("/lent/member/{memberId:int}")]
+    public List<BookLendingDetailsDto> GetBookLendingDetailsByCurrentMember(int memberId)
     {
-        return this.bookService.GetAllBooksLent();
+        return this.bookService.GetLendingDetailsOfBooksByMemberId(memberId);
     }
 
     [HttpGet("/available")]
@@ -31,13 +31,13 @@ public class BookController : ControllerBase
         return this.bookService.GetAllAvailableBooks();
     }
 
-    [HttpGet("/{id}/lending-details")]
+    [HttpGet("/{id:int}/lending-details")]
     public BookLendingDetailsDto GetBookLendingDetails(int id)
     {
         return this.bookService.GetBookLendingDetails(id);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public BookResponseDto GetBook(int id)
     {
         return this.bookService.GetBookById(id);
@@ -49,7 +49,7 @@ public class BookController : ControllerBase
         return this.bookService.CreateBook(createDto);
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     public void DeleteBook(int id)
     {
         this.bookService.DeleteBook(id);

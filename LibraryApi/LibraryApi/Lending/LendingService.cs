@@ -43,6 +43,28 @@ public class LendingService
         throw new EntityNotFoundException(LendingNotFound + id);
     }
 
+    public List<LendingResponseDto> GetLendingsByMemberId(int? memberId)
+    { 
+        List<Lending> lendingList = this.libraryContext.Lendings
+            .Include(props => props.Member)
+            .Include(props => props.Book)
+            .Where(lendings => lendings.Member.Id == memberId)
+            .ToList();
+
+        return this.mapper.Map<List<LendingResponseDto>>(lendingList);
+    }
+
+    public List<LendingResponseDto> GetActiveLendingsByMemberId(int? memberId)
+    {
+        List<Lending> lendingList = this.libraryContext.Lendings
+            .Include(props => props.Member)
+            .Include(props => props.Book)
+            .Where(lendings => lendings.Member.Id == memberId && lendings.DateOfReturn == null)
+            .ToList();
+
+        return this.mapper.Map<List<LendingResponseDto>>(lendingList);
+    }
+
     public LendingResponseDto CreateLending(CreateLendingDto createDto)
     {
         if (!IsDateValid(createDto.DateOfLend, createDto.DeadlineOfReturn))

@@ -15,9 +15,20 @@ public class LendingController : ControllerBase
     }
 
     [HttpGet]
-    public List<LendingResponseDto> GetAllLendings()
+    public List<LendingResponseDto> GetAllLendingsByMember([FromQuery(Name = "memberId")] int? memberId)
     {
-        return this.lendingService.GetAllLendings();
+        if (memberId == null)
+        {
+            return this.lendingService.GetAllLendings();
+        }
+
+        return this.lendingService.GetLendingsByMemberId(memberId);
+    }
+
+    [HttpGet("/active")]
+    public List<LendingResponseDto> GetAllActiveLendingsByMember([FromQuery(Name = "memberId")] int memberId)
+    {
+        return this.lendingService.GetActiveLendingsByMemberId(memberId);
     }
 
     [HttpGet("{id}")]
