@@ -9,7 +9,7 @@ namespace LibraryApi.Member;
 public class MemberService
 {
     private const string MemberNotFound = "Member was not found with id: ";
-    private const string NamePattern = "^[a-zA-Z]+$";
+    private const string NamePattern = "^[a-zA-Z]+(?:.\\s[a-zA-Z]+)*$";
 
     private readonly LibraryContext libraryContext;
     private readonly ILogger<MemberService> logger;

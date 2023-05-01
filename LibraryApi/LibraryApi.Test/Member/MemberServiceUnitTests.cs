@@ -25,52 +25,57 @@ public class MemberServiceUnitTests
     {
         Id = TestId, Address = "address", DateOfBirth = DateTime.Parse("2000-11-16"), Name = "name"
     };
-    
+
 
     public MemberServiceUnitTests()
     {
         _options = new DbContextOptionsBuilder<LibraryContext>()
             .UseInMemoryDatabase(databaseName: "TestDatabase")
             .Options;
-        
+
         libraryContext = new LibraryContext(_options);
         mockedLogger = new Mock<ILogger<MemberService>>();
         mockedMapper = new Mock<IMapper>();
         memberService = new MemberService(libraryContext, mockedLogger.Object, mockedMapper.Object);
     }
-    
+
     private void CleanUp()
     {
         libraryContext.Database.EnsureDeleted();
         libraryContext.Database.EnsureCreated();
     }
 
-    [Fact]
-    public void CreateMemberShouldSucceed()
+    [Theory]
+    [InlineData("Dominik")]
+    [InlineData("Gyulai Dominik")]
+    public void CreateMemberShouldSucceed(string name)
     {
         // given
         var createDto = new CreateMemberDto()
         {
             Address = _member.Address,
             DateOfBirth = _member.DateOfBirth,
-            Name = _member.Name
+            Name = name
         };
+
+        _member.Name = name;
 
         mockedMapper.Setup(mapper => mapper.Map<LibraryApi.Member.Member>(createDto)).Returns(_member);
 
         // when
         memberService.CreateMember(createDto);
-        
+
         // then
         Assert.Single(libraryContext.Members.ToList());
-        
+
         CleanUp();
     }
-    
+
     [Theory]
     [InlineData("Dominik123")]
     [InlineData("  ")]
     [InlineData("Dominik*!")]
+    [InlineData("Dominik  ")]
     public void CreateMemberShouldThrowArgumentExceptionIfNameContainsWrongCharacters(string name)
     {
         // given
