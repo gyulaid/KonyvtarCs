@@ -24,7 +24,7 @@ public class MemberService
 
     public List<MemberResponseDto> GetAllMember()
     {
-        return mapper.Map<List<MemberResponseDto>>(this.libraryContext.Members.ToList());
+        return this.mapper.Map<List<MemberResponseDto>>(this.libraryContext.Members.ToList());
     }
 
     public MemberResponseDto GetMemberById(int id)
@@ -32,7 +32,7 @@ public class MemberService
         var member = this.libraryContext.Members.Find(id);
         if (member != null)
         {
-            return mapper.Map<MemberResponseDto>(member);
+            return this.mapper.Map<MemberResponseDto>(member);
         }
 
         throw new EntityNotFoundException(MemberNotFound + id);
@@ -42,7 +42,7 @@ public class MemberService
     {
         if (IsNameValid(createDto.Name))
         {
-            var savedMember = this.libraryContext.Members.Add(mapper.Map<Member>(createDto));
+            var savedMember = this.libraryContext.Members.Add(this.mapper.Map<Member>(createDto));
             this.libraryContext.SaveChanges();
             this.logger.Log(LogLevel.Information, "A new member was saved");
             return mapper.Map<MemberResponseDto>(savedMember.Entity);

@@ -23,12 +23,12 @@ public class BookService
 
     public List<BookResponseDto> GetAllBooks()
     {
-        return mapper.Map<List<BookResponseDto>>(this.libraryContext.Books.ToList());
+        return this.mapper.Map<List<BookResponseDto>>(this.libraryContext.Books.ToList());
     }
 
     public List<BookResponseDto> GetAllAvailableBooks()
     {
-        return mapper.Map<List<BookResponseDto>>(
+        return this.mapper.Map<List<BookResponseDto>>(
             this.libraryContext.Books
                 .Where(book => book.IsAvailable)
                 .ToList()
@@ -37,7 +37,7 @@ public class BookService
 
     public BookLendingDetailsDto GetBookLendingDetails(int id)
     {
-        var book = libraryContext.Books.Find(id);
+        var book = this.libraryContext.Books.Find(id);
         if (book is null)
         {
             throw new EntityNotFoundException(BookNotFound + id);
@@ -47,7 +47,7 @@ public class BookService
 
         var lending = this.FindActiveLendingByBookId(id);
 
-        if (lending is null)
+        if (lending == null)
         {
             details.Book = book;
             details.Member = null;
@@ -65,26 +65,11 @@ public class BookService
 
     public List<BookLendingDetailsDto> GetLendingDetailsOfBooksByMemberId(int memberId)
     {
-        List<Lending.Lending> lendings = this.libraryContext.Lendings.Include(x => x.Book)
+        var lendings = this.libraryContext.Lendings.Include(x => x.Book)
             .Where(lending => lending.Member.Id == memberId)
             .ToList();
-        List<BookLendingDetailsDto> lendingDetailsDtos = new List<BookLendingDetailsDto>();
 
-        foreach (var lending in lendings)
-        {
-            lendingDetailsDtos.Add(this.GetBookLendingDetails(lending.Book.Id));
-        }
-
-        return lendingDetailsDtos;
-    }
-
-    private Lending.Lending FindActiveLendingByBookId(int id)
-    {
-        return this.libraryContext.Lendings
-            .Include(x => x.Book)
-            .Include(y => y.Member)
-            .First(lending => lending.Book.Id == id && !lending.Book.IsAvailable);
-
+        return lendings.Select(lending => this.GetBookLendingDetails(lending.Book.Id)).ToList();
     }
 
     public BookResponseDto GetBookById(int id)
@@ -119,5 +104,13 @@ public class BookService
         {
             throw new EntityNotFoundException(BookNotFound + id);
         }
+    }
+
+    private Lending.Lending? FindActiveLendingByBookId(int id)
+    {
+        return this.libraryContext.Lendings
+            .Include(x => x.Book)
+            .Include(y => y.Member)
+            .FirstOrDefault(lending => lending.Book.Id == id && !lending.Book.IsAvailable);
     }
 }

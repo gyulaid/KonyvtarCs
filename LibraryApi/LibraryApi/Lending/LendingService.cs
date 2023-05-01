@@ -45,7 +45,7 @@ public class LendingService
 
     public List<LendingResponseDto> GetLendingsByMemberId(int? memberId)
     { 
-        List<Lending> lendingList = this.libraryContext.Lendings
+        var lendingList = this.libraryContext.Lendings
             .Include(props => props.Member)
             .Include(props => props.Book)
             .Where(lendings => lendings.Member.Id == memberId)
@@ -56,7 +56,7 @@ public class LendingService
 
     public List<LendingResponseDto> GetActiveLendingsByMemberId(int? memberId)
     {
-        List<Lending> lendingList = this.libraryContext.Lendings
+        var lendingList = this.libraryContext.Lendings
             .Include(props => props.Member)
             .Include(props => props.Book)
             .Where(lendings => lendings.Member.Id == memberId && lendings.DateOfReturn == null)
@@ -89,8 +89,8 @@ public class LendingService
 
     private void mapForeignIdsToEntities(Lending lending, CreateLendingDto createDto)
     {
-        lending.Book = libraryContext.Books.Find(createDto.BookId);
-        lending.Member = libraryContext.Members.Find(createDto.MemberId);
+        lending.Book = this.libraryContext.Books.Find(createDto.BookId);
+        lending.Member = this.libraryContext.Members.Find(createDto.MemberId);
     }
 
     public LendingResponseDto ReturnLending(int id, UpdateLendingDto updateDto)
@@ -134,12 +134,12 @@ public class LendingService
 
     private static bool IsDateValid(DateTime earlyDate, DateTime? lateDate)
     {
-        return lateDate.Value.CompareTo(earlyDate) != -1;
+        return lateDate != null && lateDate.Value.CompareTo(earlyDate) != -1;
     }
 
     private bool IsBookAvailable(int BookId)
     {
-        var book = this.libraryContext.Books.FirstOrDefault(Book => Book.IsAvailable && Book.Id == BookId);
+        var book = this.libraryContext.Books.FirstOrDefault(b => b.IsAvailable && b.Id == BookId);
         return book is { IsAvailable: true };
     }
 
