@@ -25,7 +25,7 @@ public class LendingController : ControllerBase
         return this.lendingService.GetLendingsByMemberId(memberId);
     }
 
-    [HttpGet("/active")]
+    [HttpGet("active")]
     public List<LendingResponseDto> GetAllActiveLendingsByMember([FromQuery(Name = "memberId")] int memberId)
     {
         return this.lendingService.GetActiveLendingsByMemberId(memberId);
