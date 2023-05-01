@@ -15,4 +15,6 @@ public class Member
     public string Address { get; set; }
 
     public DateTime DateOfBirth { get; set; }
+
+    public List<Lending.Lending> lendings { get; set; }
 }

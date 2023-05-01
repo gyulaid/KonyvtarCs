@@ -1,6 +1,8 @@
 using AutoMapper;
 using LibraryApi.Database;
 using LibraryApi.Exception;
+using LibraryApi.Member.Dto;
+using Microsoft.EntityFrameworkCore;
 
 namespace LibraryApi.Book;
 
@@ -37,6 +39,48 @@ public class BookService
                 .Select(result => result.Book)
                 .ToList()
         );
+    }
+
+    public BookLendingDetailsDto GetBookLendingDetails(int id)
+    {
+        var book = libraryContext.Books.Find(id);
+        if (book is null)
+        {
+            throw new EntityNotFoundException(BookNotFound + id);
+        }
+
+        var details = new BookLendingDetailsDto();
+
+        var lending = this.FindActiveLendingByBookId(id);
+
+        if (lending is null)
+        {
+            details.IsAvailable = true;
+            details.Member = null;
+            details.DeadlineOfReturn = null;
+
+            return details;
+        }
+
+        details.IsAvailable = false;
+        details.Member = this.mapper.Map<MemberResponseDto>(lending.Member);
+        details.DeadlineOfReturn = lending.DeadlineOfReturn;
+
+        return details;
+    }
+
+    private Lending.Lending FindActiveLendingByBookId(int id)
+    {
+        return this.libraryContext.Lendings
+            .Include(include => include.Member)
+            .Join(
+                libraryContext.Lendings,
+                lending => lending.Book.Id,
+                book => book.Id,
+                (lending, book) => new { Lending = lending, Book = book })
+            .Where(joinedResult => joinedResult.Lending.DateOfReturn == null && joinedResult.Book.Id == id)
+            .Select(result => result.Lending)
+            .First();
     }
 
     public BookResponseDto GetBookById(int id)
