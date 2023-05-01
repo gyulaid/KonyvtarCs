@@ -26,17 +26,20 @@ public class BookService
         return mapper.Map<List<BookResponseDto>>(this.libraryContext.Books.ToList());
     }
 
-    public List<BookResponseDto> GetAllBooksLend()
+    public List<BookResponseDto> GetAllBooksLent()
     {
         return mapper.Map<List<BookResponseDto>>(
             this.libraryContext.Books
-                .Join(
-                    libraryContext.Lendings,
-                    book => book.Id,
-                    lending => lending.Book.Id,
-                    (book, lending) => new { Book = book, Lending = lending })
-                .Where(joinedResult => joinedResult.Lending.DateOfReturn == null)
-                .Select(result => result.Book)
+                .Where(book => !book.IsAvailable)
+                .ToList()
+        );
+    }
+
+    public List<BookResponseDto> GetAllAvailableBooks()
+    {
+        return mapper.Map<List<BookResponseDto>>(
+            this.libraryContext.Books
+                .Where(book => book.IsAvailable)
                 .ToList()
         );
     }
@@ -78,7 +81,7 @@ public class BookService
                 lending => lending.Book.Id,
                 book => book.Id,
                 (lending, book) => new { Lending = lending, Book = book })
-            .Where(joinedResult => joinedResult.Lending.DateOfReturn == null && joinedResult.Book.Id == id)
+            .Where(joinedResult => !joinedResult.Book.Book.IsAvailable && joinedResult.Book.Id == id)
             .Select(result => result.Lending)
             .First();
     }

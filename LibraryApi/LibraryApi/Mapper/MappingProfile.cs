@@ -10,7 +10,10 @@ public class MappingProfile : Profile
     public MappingProfile()
     {
         CreateMap<Book.Book, BookResponseDto>();
-        CreateMap<CreateBookDto, Book.Book>();
+        CreateMap<CreateBookDto, Book.Book>()
+            .ForMember(
+                dest => dest.IsAvailable,
+                opt => opt.MapFrom(src => true));
 
         CreateMap<Member.Member, MemberResponseDto>();
         CreateMap<CreateMemberDto, Member.Member>();

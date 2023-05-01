@@ -19,10 +19,16 @@ public class BookController : ControllerBase
         return this.bookService.GetAllBooks();
     }
 
-    [HttpGet("/lend")]
-    public List<BookResponseDto> GetAllBooksLend()
+    [HttpGet("/lent")]
+    public List<BookResponseDto> GetAllBooksLent()
     {
-        return this.bookService.GetAllBooksLend();
+        return this.bookService.GetAllBooksLent();
+    }
+
+    [HttpGet("/available")]
+    public List<BookResponseDto> GetAllAvailableBooks()
+    {
+        return this.bookService.GetAllAvailableBooks();
     }
 
     [HttpGet("/{id}/lending-details")]
