@@ -15,11 +15,8 @@ public class MemberServiceUnitTests
 {
     private const int TestId = 1;
 
-    private readonly LibraryContext libraryContext;
     private readonly Mock<ILogger<MemberService>> mockedLogger;
     private readonly Mock<IMapper> mockedMapper;
-    private readonly MemberService memberService;
-    private readonly DbContextOptions<LibraryContext> _options;
 
     private static readonly LibraryApi.Member.Member _member = new()
     {
@@ -29,20 +26,27 @@ public class MemberServiceUnitTests
 
     public MemberServiceUnitTests()
     {
-        _options = new DbContextOptionsBuilder<LibraryContext>()
-            .UseInMemoryDatabase(databaseName: "TestDatabase")
-            .Options;
-
-        libraryContext = new LibraryContext(_options);
         mockedLogger = new Mock<ILogger<MemberService>>();
         mockedMapper = new Mock<IMapper>();
-        memberService = new MemberService(libraryContext, mockedLogger.Object, mockedMapper.Object);
     }
 
-    private void CleanUp()
+    private MemberService CreateService(LibraryContext libraryContext)
     {
-        libraryContext.Database.EnsureDeleted();
-        libraryContext.Database.EnsureCreated();
+        return new MemberService(libraryContext, mockedLogger.Object, mockedMapper.Object);
+    }
+
+    private static LibraryContext CreateContext()
+    {
+        DbContextOptions<LibraryContext> _options = new DbContextOptionsBuilder<LibraryContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        return new LibraryContext(_options);
+    }
+
+    private static void Teardown(LibraryContext _libraryContext)
+    {
+        _libraryContext.Database.EnsureDeleted();
     }
 
     [Theory]
@@ -51,6 +55,9 @@ public class MemberServiceUnitTests
     public void CreateMemberShouldSucceed(string name)
     {
         // given
+        var libraryContext = CreateContext();
+        var memberService = CreateService(libraryContext);
+
         var createDto = new CreateMemberDto()
         {
             Address = _member.Address,
@@ -68,7 +75,7 @@ public class MemberServiceUnitTests
         // then
         Assert.Single(libraryContext.Members.ToList());
 
-        CleanUp();
+        Teardown(libraryContext);
     }
 
     [Theory]
@@ -79,6 +86,9 @@ public class MemberServiceUnitTests
     public void CreateMemberShouldThrowArgumentExceptionIfNameContainsWrongCharacters(string name)
     {
         // given
+        var libraryContext = CreateContext();
+        var memberService = CreateService(libraryContext);
+
         var createDto = new CreateMemberDto()
         {
             Address = _member.Address,
@@ -90,6 +100,7 @@ public class MemberServiceUnitTests
 
         // when - then
         Assert.Throws<ArgumentException>(() => memberService.CreateMember(createDto));
-        CleanUp();
+
+        Teardown(libraryContext);
     }
 }

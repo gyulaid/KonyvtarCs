@@ -11,16 +11,12 @@ using Xunit;
 
 namespace LibraryApi.Tests.Lending;
 
-[Collection("TestDatabaseCollection")]
 public class LendingServiceUnitTests
 {
     private const int TestId = 1;
 
-    private readonly LibraryContext libraryContext;
     private readonly Mock<ILogger<LendingService>> mockedLogger;
     private readonly Mock<IMapper> mockedMapper;
-    private readonly LendingService lendingService;
-    private readonly DbContextOptions<LibraryContext> _options;
 
     private static LibraryApi.Member.Member _member = new()
     {
@@ -41,35 +37,46 @@ public class LendingServiceUnitTests
 
     public LendingServiceUnitTests()
     {
-        _options = new DbContextOptionsBuilder<LibraryContext>()
-            .UseInMemoryDatabase(databaseName: "TestDatabase")
-            .Options;
-        
-        libraryContext = new LibraryContext(_options);
         mockedLogger = new Mock<ILogger<LendingService>>();
         mockedMapper = new Mock<IMapper>();
-        lendingService = new LendingService(libraryContext, mockedLogger.Object, mockedMapper.Object);
+    }
+
+    private LendingService CreateService(LibraryContext libraryContext)
+    {
+        return new LendingService(libraryContext, mockedLogger.Object, mockedMapper.Object);
+    }
+
+    private static LibraryContext CreateContext()
+    {
+        DbContextOptions<LibraryContext> _options = new DbContextOptionsBuilder<LibraryContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+        
+        return new LibraryContext(_options);        
     }
     
-    private void CleanUp()
+    private static void Teardown(LibraryContext _libraryContext)
     {
-        libraryContext.Database.EnsureDeleted();
-        libraryContext.Database.EnsureCreated();
+        _libraryContext.Database.EnsureDeleted();
     } 
 
     [Fact]
     public void CreateLendingShouldSucceed()
     {
         // given
+        var libraryContext = CreateContext();
+        var lendingService = CreateService(libraryContext);
         libraryContext.Books.Add(_book);
         libraryContext.Members.Add(_member);
         libraryContext.SaveChanges();
 
-        var createDto = new CreateLendingDto();
-        createDto.DateOfLend = DateTime.Now;
-        createDto.DeadlineOfReturn = DateTime.Today.Add(TimeSpan.FromDays(10));
-        createDto.BookId = TestId;
-        createDto.MemberId = TestId;
+        var createDto = new CreateLendingDto
+        {
+            DateOfLend = DateTime.Now,
+            DeadlineOfReturn = DateTime.Today.Add(TimeSpan.FromDays(10)),
+            BookId = TestId,
+            MemberId = TestId
+        };
 
         var responseDto = new LendingResponseDto();
 
@@ -82,13 +89,15 @@ public class LendingServiceUnitTests
         // then
         Assert.Equal(responseDto, actual);
         
-        CleanUp();
+        Teardown(libraryContext);
     }
 
     [Fact]
     public void CreateLendingShouldThrowInvalidDateExceptionWhenDeadlineIsEarlierThanLendDate()
     {
         // given
+        var libraryContext = CreateContext();
+        var lendingService = CreateService(libraryContext);
         var createDto = new CreateLendingDto();
         createDto.DateOfLend = DateTime.Today.Add(TimeSpan.FromDays(10));
         createDto.DeadlineOfReturn = DateTime.Today;
@@ -97,12 +106,19 @@ public class LendingServiceUnitTests
 
         // when - then
         Assert.Throws<InvalidDateException>(() => lendingService.CreateLending(createDto));
+        
+        Teardown(libraryContext);
     }
 
     [Fact]
     public void CreateLendingShouldThrowNotAvailableExceptionWhenNoBookWasFoundAvailableWithBookId()
     {
         // given
+        var libraryContext = CreateContext();
+        var lendingService = CreateService(libraryContext);
+        libraryContext.Members.Add(_member);
+        libraryContext.SaveChanges();
+        
         var createDto = new CreateLendingDto();
         createDto.DateOfLend = DateTime.Today;
         createDto.DeadlineOfReturn = DateTime.Today.Add(TimeSpan.FromDays(10));
@@ -111,12 +127,16 @@ public class LendingServiceUnitTests
 
         // when - then
         Assert.Throws<NotAvailableException>(() => lendingService.CreateLending(createDto));
+        
+        Teardown(libraryContext);
     }
 
     [Fact]
     public void ReturnLendingShouldSucceedAndUpdateBookToAvailable()
     {
         // given
+        var libraryContext = CreateContext();
+        var lendingService = CreateService(libraryContext);
         _book.IsAvailable = false;
         libraryContext.Books.Add(_book);
         libraryContext.Members.Add(_member);
@@ -133,13 +153,16 @@ public class LendingServiceUnitTests
         Assert.NotNull(libraryContext.Lendings.Find(_lending.Id)!.DateOfReturn);
         Assert.True(libraryContext.Books.Find(_lending.Book.Id)!.IsAvailable);
         
-        CleanUp();
+        Teardown(libraryContext);
     }
 
     [Fact]
     public void ReturnLendingShouldThrowInvalidDateExceptionIfReturnDateIsEarlierThanLendDate()
     {
         // given
+        var libraryContext = CreateContext();
+        var lendingService = CreateService(libraryContext);
+        
         libraryContext.Books.Add(_book);
         libraryContext.Members.Add(_member);
         libraryContext.Lendings.Add(_lending);
@@ -152,6 +175,6 @@ public class LendingServiceUnitTests
             )
         );
         
-        CleanUp();
+        Teardown(libraryContext);
     }
 }
