@@ -106,7 +106,7 @@ public class LendingService
 
         if (!IsDateValid(lending.DateOfLend, updateDto.dateOfReturn))
         {
-            throw new ArgumentException(InvalidReturnDate);
+            throw new InvalidDateException(InvalidReturnDate);
         }
 
         lending.DateOfReturn = updateDto.dateOfReturn;
