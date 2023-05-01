@@ -24,12 +24,17 @@ public class LendingService
 
     public List<LendingResponseDto> GetAllLendings()
     {
-        return this.mapper.Map<List<LendingResponseDto>>(this.libraryContext.Lendings.ToList());
+        return this.mapper.Map<List<LendingResponseDto>>(this.libraryContext.Lendings
+            .Include(x => x.Book)
+            .Include(y => y.Member)
+            .ToList());
     }
 
     public LendingResponseDto GetLendingById(int id)
     {
-        var lending = this.libraryContext.Lendings.Find(id);
+        var lending = this.libraryContext.Lendings
+            .Include(x => x.Book)
+            .FirstOrDefault(lending => lending.Id == id);
         if (lending != null)
         {
             return this.mapper.Map<LendingResponseDto>(lending);
