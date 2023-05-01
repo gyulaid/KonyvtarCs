@@ -2,6 +2,7 @@ using AutoMapper;
 using LibraryApi.Database;
 using LibraryApi.Exception;
 using LibraryApi.Lending.Dto;
+using Microsoft.EntityFrameworkCore;
 
 namespace LibraryApi.Lending;
 
@@ -23,7 +24,7 @@ public class LendingService
 
     public List<LendingResponseDto> GetAllLendings()
     {
-        return mapper.Map<List<LendingResponseDto>>(this.libraryContext.Lendings.ToList());
+        return this.mapper.Map<List<LendingResponseDto>>(this.libraryContext.Lendings.ToList());
     }
 
     public LendingResponseDto GetLendingById(int id)
@@ -31,7 +32,7 @@ public class LendingService
         var lending = this.libraryContext.Lendings.Find(id);
         if (lending != null)
         {
-            return mapper.Map<LendingResponseDto>(lending);
+            return this.mapper.Map<LendingResponseDto>(lending);
         }
 
         throw new EntityNotFoundException(LendingNotFound + id);
@@ -39,20 +40,38 @@ public class LendingService
 
     public LendingResponseDto CreateLending(CreateLendingDto createDto)
     {
-        if (IsDateValid(createDto.DateOfLend, createDto.DeadlineOfReturn))
+        if (!IsDateValid(createDto.DateOfLend, createDto.DeadlineOfReturn))
         {
-            var savedLending = this.libraryContext.Lendings.Add(mapper.Map<Lending>(createDto));
-            this.libraryContext.SaveChanges();
-            this.logger.Log(LogLevel.Information, "A new lending was saved");
-            return mapper.Map<LendingResponseDto>(savedLending.Entity);
+            throw new InvalidDateException(InvalidReturnDate);
         }
 
-        throw new ArgumentException(InvalidReturnDate);
+        if (!this.IsBookAvailable(createDto.BookId))
+        {
+            throw new NotAvailableException("The wanted book is not available");
+        }
+
+        var lending = this.mapper.Map<Lending>(createDto);
+        this.mapForeignIdsToEntities(lending, createDto);
+        var savedLending = this.libraryContext.Lendings.Add(lending);
+        this.updateBookAvailability(createDto.BookId, false);
+        this.libraryContext.SaveChanges();
+        this.logger.Log(LogLevel.Information, "A new lending was saved");
+
+        return this.mapper.Map<LendingResponseDto>(savedLending.Entity);
+    }
+
+    private void mapForeignIdsToEntities(Lending lending, CreateLendingDto createDto)
+    {
+        lending.Book = libraryContext.Books.Find(createDto.BookId);
+        lending.Member = libraryContext.Members.Find(createDto.MemberId);
     }
 
     public LendingResponseDto ReturnLending(int id, UpdateLendingDto updateDto)
     {
-        var lending = this.libraryContext.Lendings.Find(id);
+        var lending = this.libraryContext.Lendings
+            .Include(x => x.Book)
+            .FirstOrDefault(lending => lending.Id == id);
+
         if (lending is null)
         {
             throw new EntityNotFoundException(LendingNotFound + id);
@@ -65,9 +84,10 @@ public class LendingService
 
         lending.DateOfReturn = updateDto.dateOfReturn;
         this.libraryContext.Lendings.Update(lending);
+        this.updateBookAvailability(lending.Book.Id, true);
         this.libraryContext.SaveChanges();
         this.logger.Log(LogLevel.Information, "Book was returned with id: " + lending.Book.Id);
-        return mapper.Map<LendingResponseDto>(lending);
+        return this.mapper.Map<LendingResponseDto>(lending);
     }
 
     public void DeleteLending(int id)
@@ -88,5 +108,23 @@ public class LendingService
     private static bool IsDateValid(DateTime earlyDate, DateTime? lateDate)
     {
         return lateDate.Value.CompareTo(earlyDate) != -1;
+    }
+
+    private bool IsBookAvailable(int BookId)
+    {
+        var book = this.libraryContext.Books.FirstOrDefault(Book => Book.IsAvailable && Book.Id == BookId);
+        return book is { IsAvailable: true };
+    }
+
+    private void updateBookAvailability(int id, bool Availability)
+    {
+        var book = this.libraryContext.Books.Find(id);
+        if (book == null)
+        {
+            return;
+        }
+
+        book.IsAvailable = Availability;
+        this.libraryContext.Books.Update(book);
     }
 }
