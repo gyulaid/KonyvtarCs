@@ -1,9 +1,9 @@
 using AutoMapper;
+using LibraryApi.Contracts.Book;
+using LibraryApi.Contracts.Member;
 using LibraryApi.Database;
 using LibraryApi.Exception;
 using Microsoft.EntityFrameworkCore;
-using LibraryApi.Contracts.Book;
-using LibraryApi.Contracts.Member;
 
 namespace LibraryApi.Book;
 
@@ -50,14 +50,14 @@ public class BookService
 
         if (lending == null)
         {
-            details.Book = book;
+            details.Book = this.mapper.Map<BookResponseDto>(book);
             details.Member = null;
             details.DeadlineOfReturn = null;
 
             return details;
         }
 
-        details.Book = lending.Book;
+        details.Book = this.mapper.Map<BookResponseDto>(lending.Book);
         details.Member = this.mapper.Map<MemberResponseDto>(lending.Member);
         details.DeadlineOfReturn = lending.DeadlineOfReturn;
 

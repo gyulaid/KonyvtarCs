@@ -1,4 +1,4 @@
-using LibraryApi.Lending.Dto;
+using LibraryApi.Contracts.Lending;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryApi.Lending;

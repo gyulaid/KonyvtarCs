@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
 using AutoMapper;
+using LibraryApi.Contracts.Member;
 using LibraryApi.Database;
 using LibraryApi.Member;
-using LibraryApi.Member.Dto;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;

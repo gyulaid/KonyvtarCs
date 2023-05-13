@@ -1,7 +1,7 @@
 using AutoMapper;
-using LibraryApi.Book;
-using LibraryApi.Lending.Dto;
-using LibraryApi.Member.Dto;
+using LibraryApi.Contracts.Book;
+using LibraryApi.Contracts.Lending;
+using LibraryApi.Contracts.Member;
 
 namespace LibraryApi.Mapper;
 
