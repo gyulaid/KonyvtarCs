@@ -1,7 +1,7 @@
 using AutoMapper;
+using LibraryApi.Contracts.Lending;
 using LibraryApi.Database;
 using LibraryApi.Exception;
-using LibraryApi.Lending.Dto;
 using Microsoft.EntityFrameworkCore;
 
 namespace LibraryApi.Lending;

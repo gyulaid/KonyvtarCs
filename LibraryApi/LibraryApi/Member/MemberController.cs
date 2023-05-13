@@ -1,4 +1,4 @@
-using LibraryApi.Member.Dto;
+using LibraryApi.Contracts.Member;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryApi.Member;

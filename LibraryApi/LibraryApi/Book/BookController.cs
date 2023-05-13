@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using LibraryApi.Contracts.Book;
 
 namespace LibraryApi.Book;
 

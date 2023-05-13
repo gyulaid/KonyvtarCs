@@ -1,8 +1,9 @@
 using AutoMapper;
 using LibraryApi.Database;
 using LibraryApi.Exception;
-using LibraryApi.Member.Dto;
 using Microsoft.EntityFrameworkCore;
+using LibraryApi.Contracts.Book;
+using LibraryApi.Contracts.Member;
 
 namespace LibraryApi.Book;
 

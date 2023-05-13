@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 using AutoMapper;
 using LibraryApi.Database;
 using LibraryApi.Exception;
-using LibraryApi.Member.Dto;
+using LibraryApi.Contracts.Member;
 
 namespace LibraryApi.Member;
 
