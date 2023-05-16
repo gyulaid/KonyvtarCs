@@ -1,8 +1,8 @@
 using System.Text.RegularExpressions;
 using AutoMapper;
+using LibraryApi.Contracts.Member;
 using LibraryApi.Database;
 using LibraryApi.Exception;
-using LibraryApi.Contracts.Member;
 
 namespace LibraryApi.Member;
 
