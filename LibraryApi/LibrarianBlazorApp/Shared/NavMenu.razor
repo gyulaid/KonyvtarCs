@@ -1,6 +1,6 @@
 ﻿<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">LibrarianBlazorApp</a>
+        <a class="navbar-brand" href="">Librarian Client</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -15,15 +15,21 @@
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="oi oi-plus" aria-hidden="true"></span> Counter
+            <NavLink class="nav-link" href="member">
+                <span class="oi oi-people" aria-hidden="true"></span> Members
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="fetchdata">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
+            <NavLink class="nav-link" href="book">
+                <span class="oi oi-book" aria-hidden="true"></span> Books
             </NavLink>
         </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="lending">
+                <span class="oi oi-transfer" aria-hidden="true"></span> Lending
+            </NavLink>
+        </div>
+        
     </nav>
 </div>
 

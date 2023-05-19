@@ -1,0 +1,44 @@
+﻿@page "/member"
+@using LibraryApi.Contracts.Member
+@inject HttpClient HttpClient
+
+
+@if (Members is null)
+{
+    <h3 class="align-content-center">Loading...</h3>
+}
+else
+{
+    <button type="button" class="btn btn-primary text-align-right">New Book</button>
+
+    <table class="table table-bordered table-hover">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Detail</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var member in Members)
+        {
+            <tr>
+                <td>@member.Name</td>
+                <td>@member.Address</td>
+                // vv We don't really need this vv just put hyperlink on rows
+                <td>Details</td>
+            </tr>
+            
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    private IEnumerable<MemberResponseDto>? Members { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Members = await HttpClient.GetFromJsonAsync<IEnumerable<MemberResponseDto>>("Members");
+    }
+}
