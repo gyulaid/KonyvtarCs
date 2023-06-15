@@ -1,6 +1,7 @@
-﻿@page "/member"
+﻿@page "/members"
 @using LibraryApi.Contracts.Member
-@inject HttpClient HttpClient
+@using LibrarianBlazorApp.Services
+@inject IMemberService MemberService
 
 
 @if (Members is null)
@@ -9,26 +10,31 @@
 }
 else
 {
-    <button type="button" class="btn btn-primary text-align-right">New Book</button>
+    <button type="button"
+            class="btn btn-primary text-align-right"
+            style="float: right; margin-bottom: 1rem">
+        New Member</button>
 
     <table class="table table-bordered table-hover">
         <thead>
         <tr>
             <th>Name</th>
-            <th>Email</th>
-            <th>Detail</th>
+            <th>Address</th>
+            <th>Library Card</th>
+            <th>Date of Birth</th>
+            <th></th>
         </tr>
         </thead>
         <tbody>
         @foreach (var member in Members)
         {
-            <tr>
-                <td>@member.Name</td>
-                <td>@member.Address</td>
-                // vv We don't really need this vv just put hyperlink on rows
-                <td>Details</td>
-            </tr>
-            
+        <tr>
+            <td>@member.Name</td>
+            <td>@member.Address</td>
+            <td>@member.Id</td>
+            <td>@member.DateOfBirth!.Value.ToShortDateString()</td>
+            <td><a href="members/@member.Id" class="btn btn-primary">Details</a></td>
+        </tr>
         }
         </tbody>
     </table>
@@ -39,6 +45,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        Members = await HttpClient.GetFromJsonAsync<IEnumerable<MemberResponseDto>>("Members");
+        Members = await MemberService.GetAllMembersAsync();
     }
 }
