@@ -1,0 +1,64 @@
+﻿@page "/members/{id:int}"
+@using LibraryApi.Contracts.Member
+@using LibrarianBlazorApp.Services
+@using LibraryApi.Contracts.Book
+@inject IMemberService MemberService
+
+
+@if ((Member is null) && (LentBooks is null))
+{
+    <h3 class="align-content-center">Loading...</h3>
+}
+else
+{
+    <h3>@Member.Name's Details</h3>
+    <h5>Name: @Member.Name</h5>
+    <h5>Address: @Member.Address</h5>
+    <h5>Date of Birth: @Member.DateOfBirth!.Value.ToShortDateString()</h5>
+    <br/>                                                               
+    <h3>Lent Books:</h3>
+    <table class="table table-bordered table-hover">
+        <thead>
+        <tr>
+            <th>Title</th>
+            <th>Deadline of return</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach(var book in LentBooks)
+        {
+            @if (@book.DeadlineOfReturn > DateTime.Today)
+            {
+                <tr class="alert-warning">
+                    <td>@book.Book.title</td>
+                    <td>@book.DeadlineOfReturn</td>
+                </tr>
+            }
+            else
+            {
+                <tr>
+                    <td>@book.Book.title</td>
+                    <td>@book.DeadlineOfReturn</td>
+                </tr>
+            }
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    
+    private MemberResponseDto? Member { get; set; }
+    private IEnumerable<BookLendingDetailsDto>? LentBooks { get; set; }
+    
+    
+
+    protected override async Task OnInitializedAsync()
+    {
+        Member = await MemberService.GetMemberByIdAsync(Id);
+        LentBooks = await MemberService.GetBooksLentByMember(Id);
+    }
+    
+}
