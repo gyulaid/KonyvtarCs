@@ -1,5 +1,47 @@
-﻿<h3>Book</h3>
+﻿@page "/books"
+@using LibraryApi.Contracts.Book
+@using LibrarianBlazorApp.Services
+@inject IBookService BookService
+
+@if (Books is null)
+{
+    <h3 class="align-content-center">Loading...</h3>
+}
+else
+{
+    <table class="table table-bordered table-hover">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Publish Year</th>
+            <th>Publisher</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var book in Books)
+        {
+        <tr>
+            <td>@book.Id</td>
+            <td>@book.title</td>
+            <td>@book.author</td>
+            <td>@book.publishYear</td>
+            <td>@book.publisher</td>
+            <td><a href="books/@book.Id" class="btn btn-primary">Details</a></td>
+        </tr>
+        }
+        </tbody>
+    </table>
+}
+
 
 @code {
-    
+    private IEnumerable<BookResponseDto>? Books { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Books = await BookService.GetAllBooksAsync();
+    }
 }

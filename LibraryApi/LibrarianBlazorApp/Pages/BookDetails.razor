@@ -1,0 +1,41 @@
+﻿@page "/books/{id:int}/lending-details"
+@using LibraryApi.Contracts.Book
+@using LibrarianBlazorApp.Services
+@inject IBookService BookService
+
+@if (LendingInfo is null)
+{
+    <h3 class="align-content-center">Loading...</h3>
+}
+else
+{
+    <h3>Book details</h3>
+    <h5>@LendingInfo.Book.title</h5>
+    
+    <table class="table table-bordered table-hover">
+        <thead>
+        <tr>
+            <th>lent</th>
+            <th>borrower</th>
+            <th>deadline of return</th>
+        </tr>
+        </thead>
+        <tbody>
+        
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    
+    private BookLendingDetailsDto? LendingInfo { get; set; }
+    
+    
+    protected override async Task OnInitializedAsync()
+    {
+        LendingInfo = await BookService.GetBookByIdAsync(Id);
+    }
+    
+}
