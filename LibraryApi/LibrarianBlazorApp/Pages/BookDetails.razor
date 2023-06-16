@@ -21,6 +21,23 @@ else
         </tr>
         </thead>
         <tbody>
+        @if (LendingInfo.Member is null)
+        {
+            <tr>
+                <td>Available</td>
+                <td></td>
+                <td></td>
+            </tr>
+        }
+        else
+        {
+            <tr>
+                <td>Currently Lent</td>
+                <td>@LendingInfo.Member.Name</td>
+                <td>@LendingInfo.DeadlineOfReturn</td>
+            </tr>
+           
+        }
         </tbody>
     </table>
 }
