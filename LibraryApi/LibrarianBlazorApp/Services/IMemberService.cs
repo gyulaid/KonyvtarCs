@@ -11,5 +11,7 @@ namespace LibrarianBlazorApp.Services
         Task<MemberResponseDto?> GetMemberByIdAsync(int id);
 
         Task<IEnumerable<BookLendingDetailsDto>?> GetBooksLentByMember(int id);
+
+        Task AddMemberAsync(CreateMemberDto member);
     }
 }
