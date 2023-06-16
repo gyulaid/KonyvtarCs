@@ -14,13 +14,16 @@ namespace LibrarianBlazorApp.Services
             _httpClient = httpClient;
         }
 
-        public Task<IEnumerable<MemberResponseDto>?> GetAllMembersAsync() =>
-            _httpClient.GetFromJsonAsync<IEnumerable<MemberResponseDto>>("Members");
+        public async Task<IEnumerable<MemberResponseDto>?> GetAllMembersAsync() => 
+            await _httpClient.GetFromJsonAsync<IEnumerable<MemberResponseDto>>("Members");
 
-        public Task<MemberResponseDto?> GetMemberByIdAsync(int id) =>
-            _httpClient.GetFromJsonAsync<MemberResponseDto?>($"Members/{id}");
+        public async Task<MemberResponseDto?> GetMemberByIdAsync(int id) =>
+            await _httpClient.GetFromJsonAsync<MemberResponseDto?>($"Members/{id}");
 
-        public Task<IEnumerable<BookLendingDetailsDto>?> GetBooksLentByMember(int id) =>
-            _httpClient.GetFromJsonAsync<IEnumerable<BookLendingDetailsDto>>($"books/lent/member/{id}");
+        public async Task<IEnumerable<BookLendingDetailsDto>?> GetBooksLentByMember(int id) =>
+            await _httpClient.GetFromJsonAsync<IEnumerable<BookLendingDetailsDto>>($"books/lent/member/{id}");
+
+        public async Task AddMemberAsync(CreateMemberDto member) =>
+            await _httpClient.PostAsJsonAsync("members",member);
     }
 }
